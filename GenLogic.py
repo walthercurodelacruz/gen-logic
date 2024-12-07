@@ -143,7 +143,6 @@ class GeneradorDiagramaLogico:
         self.dot.attr(rankdir="LR", splines="line", ranksep="1.0", nodesep="0.7")
         self.contador = 0
         self.conexiones = set()
-        self.ids_entradas = {}
         self.nodos_creados = {}
 
     def _generar_id_unico(self):
@@ -152,63 +151,51 @@ class GeneradorDiagramaLogico:
 
     def _procesar_expresion(self, expr, nodo_padre=None):
         if expr in self.nodos_creados:
-            nodo_existente = self.nodos_creados[expr]
-            if nodo_padre:
-                self._agregar_arista(nodo_existente, nodo_padre)
-            return nodo_existente
+            return self.nodos_creados[expr]
 
         if isinstance(expr, And):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="", shape="none", image="assets/and.png")
+            self.dot.node(id_nodo, label="AND", shape="box")
             self.nodos_creados[expr] = id_nodo
             for arg in expr.args:
                 id_hijo = self._procesar_expresion(arg, id_nodo)
                 self._agregar_arista(id_hijo, id_nodo)
-            if nodo_padre:
-                self._agregar_arista(id_nodo, nodo_padre)
             return id_nodo
 
         elif isinstance(expr, Or):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="", shape="none", image="assets/or.png")
+            self.dot.node(id_nodo, label="OR", shape="box")
             self.nodos_creados[expr] = id_nodo
             for arg in expr.args:
                 id_hijo = self._procesar_expresion(arg, id_nodo)
                 self._agregar_arista(id_hijo, id_nodo)
-            if nodo_padre:
-                self._agregar_arista(id_nodo, nodo_padre)
             return id_nodo
 
         elif isinstance(expr, Not):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="", shape="none", image="assets/not.png")
+            self.dot.node(id_nodo, label="NOT", shape="box")
             self.nodos_creados[expr] = id_nodo
             id_hijo = self._procesar_expresion(expr.args[0], id_nodo)
             self._agregar_arista(id_hijo, id_nodo)
-            if nodo_padre:
-                self._agregar_arista(id_nodo, nodo_padre)
             return id_nodo
 
         else:
-            if expr not in self.ids_entradas:
+            if expr not in self.nodos_creados:
                 id_nodo = self._generar_id_unico()
                 self.dot.node(id_nodo, label=str(expr), shape="ellipse")
-                self.ids_entradas[expr] = id_nodo
-            if nodo_padre:
-                self._agregar_arista(self.ids_entradas[expr], nodo_padre)
-            return self.ids_entradas[expr]
+                self.nodos_creados[expr] = id_nodo
+            return self.nodos_creados[expr]
 
     def _agregar_arista(self, nodo_origen, nodo_destino):
-        conexion = (nodo_origen, nodo_destino)
-        if conexion not in self.conexiones:
-            self.conexiones.add(conexion)
+        if (nodo_origen, nodo_destino) not in self.conexiones:
+            self.conexiones.add((nodo_origen, nodo_destino))
             self.dot.edge(nodo_origen, nodo_destino)
 
     def generar_diagrama_completo(self, entradas, salidas, expresiones):
         for entrada in entradas:
             id_nodo = self._generar_id_unico()
             self.dot.node(id_nodo, label=entrada, shape="ellipse")
-            self.ids_entradas[entrada] = id_nodo
+            self.nodos_creados[symbols(entrada)] = id_nodo
 
         for salida, expresion in zip(salidas, expresiones):
             id_salida = self._generar_id_unico()
