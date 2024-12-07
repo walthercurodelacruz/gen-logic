@@ -152,7 +152,7 @@ class GeneradorDiagramaLogico:
     def _procesar_expresion(self, expr, nodo_padre=None):
         if isinstance(expr, And):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="", shape="none", image="assets\and.png")  # Imagen de compuerta AND
+            self.dot.node(id_nodo, label="", shape="none", image="assets/and.png")  # Imagen de compuerta AND
             for arg in expr.args:
                 id_hijo = self._procesar_expresion(arg, id_nodo)
                 self._agregar_arista(id_hijo, id_nodo)
@@ -162,7 +162,7 @@ class GeneradorDiagramaLogico:
 
         elif isinstance(expr, Or):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="", shape="none", image="assets\or.png")  # Imagen de compuerta OR
+            self.dot.node(id_nodo, label="", shape="none", image="assets/or.png")  # Imagen de compuerta OR
             for arg in expr.args:
                 id_hijo = self._procesar_expresion(arg, id_nodo)
                 self._agregar_arista(id_hijo, id_nodo)
@@ -172,7 +172,7 @@ class GeneradorDiagramaLogico:
 
         elif isinstance(expr, Not):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="", shape="none", image="assets\not.png")  # Imagen de compuerta NOT
+            self.dot.node(id_nodo, label="", shape="none", image="assets/not.png")  # Imagen de compuerta NOT
             id_hijo = self._procesar_expresion(expr.args[0], id_nodo)
             self._agregar_arista(id_hijo, id_nodo)
             if nodo_padre:
