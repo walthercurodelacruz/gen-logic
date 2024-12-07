@@ -9,48 +9,48 @@ class AplicacionLogica:
     def __init__(self, raiz):
         self.raiz = raiz
         self.raiz.title("Generador de Circuitos Lógicos")
+        self.raiz.geometry("600x600")
+        self.raiz.config(bg="#f0f0f0")
         self.entradas = []
         self.salidas = []
         self.tabla = []
         self.expresiones = []
 
-        # Configuración general
-        self.raiz.geometry("600x600")
-        self.raiz.resizable(False, False)
+        # Estilo
         self.estilo = ttk.Style()
         self.estilo.theme_use("clam")
-        self.estilo.configure("TButton", font=("Arial", 10, "bold"), padding=5)
-        self.estilo.configure("TLabel", font=("Arial", 10))
-        self.estilo.configure("TEntry", font=("Arial", 10))
+        self.estilo.configure("TButton", font=("Arial", 10, "bold"), padding=8)
+        self.estilo.configure("TLabel", font=("Arial", 10), background="#f0f0f0")
+        self.estilo.configure("TEntry", font=("Arial", 10), padding=8)
 
         self.configurar_interfaz()
 
     def configurar_interfaz(self):
-        # Marco principal
-        marco_principal = ttk.Frame(self.raiz, padding=10)
-        marco_principal.pack(fill=tk.BOTH, expand=True)
+        # Marco principal centrado
+        marco_principal = ttk.Frame(self.raiz, padding="20", relief="raised", borderwidth=2)
+        marco_principal.place(relx=0.5, rely=0.5, anchor="center")
 
         # Entradas
         etiqueta_entrada = ttk.Label(marco_principal, text="Entradas:")
-        etiqueta_entrada.grid(row=0, column=0, sticky="w", padx=5, pady=5)
+        etiqueta_entrada.grid(row=0, column=0, sticky="w", padx=10, pady=10)
         self.var_entrada = tk.StringVar()
-        campo_entrada = ttk.Entry(marco_principal, textvariable=self.var_entrada, width=30)
-        campo_entrada.grid(row=0, column=1, sticky="w", padx=5, pady=5)
+        campo_entrada = ttk.Entry(marco_principal, textvariable=self.var_entrada, width=20)
+        campo_entrada.grid(row=0, column=1, padx=10, pady=10)
         boton_entrada = ttk.Button(marco_principal, text="Añadir", command=self.agregar_entrada)
-        boton_entrada.grid(row=0, column=2, sticky="w", padx=5, pady=5)
+        boton_entrada.grid(row=0, column=2, padx=10, pady=10)
 
         # Salidas
         etiqueta_salida = ttk.Label(marco_principal, text="Salidas:")
-        etiqueta_salida.grid(row=1, column=0, sticky="w", padx=5, pady=5)
+        etiqueta_salida.grid(row=1, column=0, sticky="w", padx=10, pady=10)
         self.var_salida = tk.StringVar()
-        campo_salida = ttk.Entry(marco_principal, textvariable=self.var_salida, width=30)
-        campo_salida.grid(row=1, column=1, sticky="w", padx=5, pady=5)
+        campo_salida = ttk.Entry(marco_principal, textvariable=self.var_salida, width=20)
+        campo_salida.grid(row=1, column=1, padx=10, pady=10)
         boton_salida = ttk.Button(marco_principal, text="Añadir", command=self.agregar_salida)
-        boton_salida.grid(row=1, column=2, sticky="w", padx=5, pady=5)
+        boton_salida.grid(row=1, column=2, padx=10, pady=10)
 
         # Tabla de verdad
         self.marco_tabla = ttk.Frame(marco_principal)
-        self.marco_tabla.grid(row=2, column=0, columnspan=3, pady=10)
+        self.marco_tabla.grid(row=2, column=0, columnspan=3, pady=20)
 
         # Generar expresión y diagrama
         boton_generar_tabla = ttk.Button(marco_principal, text="Expresión Booleana", command=self.generar_exp_booleana)
@@ -64,7 +64,7 @@ class AplicacionLogica:
 
         # Botón de reset
         boton_reset = ttk.Button(marco_principal, text="Resetear", command=self.resetear)
-        boton_reset.grid(row=6, column=0, pady=10, columnspan=3)
+        boton_reset.grid(row=6, column=0, pady=20, columnspan=3)
 
     def agregar_entrada(self):
         nombre_entrada = self.var_entrada.get()
@@ -90,7 +90,7 @@ class AplicacionLogica:
 
         columnas = self.entradas + self.salidas
         for col, nombre in enumerate(columnas):
-            ttk.Label(self.marco_tabla, text=nombre).grid(row=0, column=col)
+            ttk.Label(self.marco_tabla, text=nombre).grid(row=0, column=col, padx=10, pady=10)
 
         self.tabla = [[tk.StringVar() for _ in columnas] for _ in range(2 ** len(self.entradas))]
         for idx_fila, fila_vars in enumerate(self.tabla):
@@ -98,7 +98,7 @@ class AplicacionLogica:
             for idx_col, var in enumerate(fila_vars):
                 if idx_col < len(self.entradas):
                     var.set(valores_binarios[idx_col])
-                ttk.Entry(self.marco_tabla, textvariable=var, width=5).grid(row=idx_fila + 1, column=idx_col)
+                ttk.Entry(self.marco_tabla, textvariable=var, width=5).grid(row=idx_fila + 1, column=idx_col, padx=10, pady=5)
 
     def generar_exp_booleana(self):
         if not self.entradas or not self.salidas:
