@@ -17,49 +17,41 @@ class AplicacionLogica:
         self.configurar_interfaz()
 
     def configurar_interfaz(self):
-        # Marco principal
-        self.marco_principal = ttk.Frame(self.raiz, padding=10)
-        self.marco_principal.grid(row=0, column=0, sticky="nsew")
-
-        # Configuración de columnas para el marco principal
-        self.marco_principal.columnconfigure(0, weight=1)
-        self.marco_principal.columnconfigure(1, weight=1)
-
         # Entradas
-        etiqueta_entrada = ttk.Label(self.marco_principal, text="Entradas:")
-        etiqueta_entrada.grid(row=0, column=0, sticky="w", pady=5)
+        etiqueta_entrada = tk.Label(self.raiz, text="Entradas:")
+        etiqueta_entrada.grid(row=0, column=0, sticky="w")
         self.var_entrada = tk.StringVar()
-        campo_entrada = ttk.Entry(self.marco_principal, textvariable=self.var_entrada, width=30)
-        campo_entrada.grid(row=0, column=1, sticky="w", pady=5)
-        boton_entrada = ttk.Button(self.marco_principal, text="Añadir", command=self.agregar_entrada)
-        boton_entrada.grid(row=0, column=2, sticky="w", padx=5)
+        campo_entrada = tk.Entry(self.raiz, textvariable=self.var_entrada, width=30)
+        campo_entrada.grid(row=0, column=1, sticky="w")
+        boton_entrada = tk.Button(self.raiz, text="Añadir", command=self.agregar_entrada)
+        boton_entrada.grid(row=0, column=2, sticky="w")
 
         # Salidas
-        etiqueta_salida = ttk.Label(self.marco_principal, text="Salidas:")
-        etiqueta_salida.grid(row=1, column=0, sticky="w", pady=5)
+        etiqueta_salida = tk.Label(self.raiz, text="Salidas:")
+        etiqueta_salida.grid(row=1, column=0, sticky="w")
         self.var_salida = tk.StringVar()
-        campo_salida = ttk.Entry(self.marco_principal, textvariable=self.var_salida, width=30)
-        campo_salida.grid(row=1, column=1, sticky="w", pady=5)
-        boton_salida = ttk.Button(self.marco_principal, text="Añadir", command=self.agregar_salida)
-        boton_salida.grid(row=1, column=2, sticky="w", padx=5)
+        campo_salida = tk.Entry(self.raiz, textvariable=self.var_salida, width=30)
+        campo_salida.grid(row=1, column=1, sticky="w")
+        boton_salida = tk.Button(self.raiz, text="Añadir", command=self.agregar_salida)
+        boton_salida.grid(row=1, column=2, sticky="w")
 
         # Tabla de verdad
-        self.marco_tabla = ttk.LabelFrame(self.raiz, text="Tabla de Verdad", padding=10)
-        self.marco_tabla.grid(row=1, column=0, sticky="nsew", pady=10)
+        self.marco_tabla = ttk.Frame(self.raiz)
+        self.marco_tabla.grid(row=2, column=0, columnspan=3, pady=10)
 
-        # Generar expresión booleana
-        self.etiqueta_expr = ttk.Label(self.marco_principal, text="Expresión simplificada:", font=("Arial", 10))
-        self.etiqueta_expr.grid(row=2, column=0, columnspan=3, sticky="w", pady=10)
+        boton_generar_tabla = tk.Button(self.raiz, text="Expresión Booleana", command=self.generar_exp_booleana)
+        boton_generar_tabla.grid(row=3, column=0, pady=10)
 
-        boton_generar_tabla = ttk.Button(self.marco_principal, text="Expresión Booleana", command=self.generar_exp_booleana)
-        boton_generar_tabla.grid(row=3, column=0, columnspan=1, pady=10, sticky="w")
+        # Generar expresión y diagrama
+        self.etiqueta_expr = tk.Label(self.raiz, text="Expresión simplificada:")
+        self.etiqueta_expr.grid(row=4, column=0, columnspan=3, sticky="w", pady=10)
 
-        boton_generar_diagrama = ttk.Button(self.marco_principal, text="Generar Diagrama", command=self.generar_diagrama)
-        boton_generar_diagrama.grid(row=3, column=1, columnspan=1, pady=10, sticky="e")
+        boton_generar_diagrama = tk.Button(self.raiz, text="Generar Diagrama", command=self.generar_diagrama)
+        boton_generar_diagrama.grid(row=5, column=0, pady=10)
 
         # Botón de reset
-        boton_reset = ttk.Button(self.raiz, text="Resetear", command=self.resetear)
-        boton_reset.grid(row=2, column=0, pady=10, sticky="ew")
+        boton_reset = tk.Button(self.raiz, text="Resetear", command=self.resetear)
+        boton_reset.grid(row=6, column=0, pady=10)
 
     def agregar_entrada(self):
         nombre_entrada = self.var_entrada.get()
@@ -85,7 +77,7 @@ class AplicacionLogica:
 
         columnas = self.entradas + self.salidas
         for col, nombre in enumerate(columnas):
-            ttk.Label(self.marco_tabla, text=nombre).grid(row=0, column=col, padx=5, pady=5)
+            tk.Label(self.marco_tabla, text=nombre).grid(row=0, column=col)
 
         self.tabla = [[tk.StringVar() for _ in columnas] for _ in range(2 ** len(self.entradas))]
         for idx_fila, fila_vars in enumerate(self.tabla):
@@ -93,13 +85,13 @@ class AplicacionLogica:
             for idx_col, var in enumerate(fila_vars):
                 if idx_col < len(self.entradas):
                     var.set(valores_binarios[idx_col])
-                ttk.Entry(self.marco_tabla, textvariable=var, width=5).grid(row=idx_fila + 1, column=idx_col, padx=5, pady=5)
+                tk.Entry(self.marco_tabla, textvariable=var, width=5).grid(row=idx_fila + 1, column=idx_col)
 
     def generar_exp_booleana(self):
         if not self.entradas or not self.salidas:
             messagebox.showerror("Error", "Debe agregar al menos una entrada y una salida.")
             return
-        
+
         try:
             datos = []
             for fila_vars in self.tabla:
@@ -160,7 +152,7 @@ class GeneradorDiagramaLogico:
     def _procesar_expresion(self, expr, nodo_padre=None):
         if isinstance(expr, And):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="AND", shape="box")
+            self.dot.node(id_nodo, label="", shape="none", image="assets/and.png")  # Imagen de compuerta AND
             for arg in expr.args:
                 id_hijo = self._procesar_expresion(arg, id_nodo)
                 self._agregar_arista(id_hijo, id_nodo)
@@ -170,7 +162,7 @@ class GeneradorDiagramaLogico:
 
         elif isinstance(expr, Or):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="OR", shape="box")
+            self.dot.node(id_nodo, label="", shape="none", image="assets/or.png")  # Imagen de compuerta OR
             for arg in expr.args:
                 id_hijo = self._procesar_expresion(arg, id_nodo)
                 self._agregar_arista(id_hijo, id_nodo)
@@ -180,7 +172,7 @@ class GeneradorDiagramaLogico:
 
         elif isinstance(expr, Not):
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label="NOT", shape="box")
+            self.dot.node(id_nodo, label="", shape="none", image="assets/not.png")  # Imagen de compuerta NOT
             id_hijo = self._procesar_expresion(expr.args[0], id_nodo)
             self._agregar_arista(id_hijo, id_nodo)
             if nodo_padre:
@@ -188,39 +180,32 @@ class GeneradorDiagramaLogico:
             return id_nodo
 
         else:
-            simbolo = str(expr)
-            if simbolo not in self.ids_entradas:
+            if expr not in self.ids_entradas:
                 id_nodo = self._generar_id_unico()
-                self.dot.node(id_nodo, label=simbolo, shape="circle")
-                self.ids_entradas[simbolo] = id_nodo
-            id_nodo = self.ids_entradas[simbolo]
+                self.dot.node(id_nodo, label=str(expr), shape="ellipse")
+                self.ids_entradas[expr] = id_nodo
             if nodo_padre:
-                self._agregar_arista(id_nodo, nodo_padre)
-            return id_nodo
+                self._agregar_arista(self.ids_entradas[expr], nodo_padre)
+            return self.ids_entradas[expr]
 
     def _agregar_arista(self, nodo_origen, nodo_destino):
         conexion = (nodo_origen, nodo_destino)
         if conexion not in self.conexiones:
-            self.dot.edge(nodo_origen, nodo_destino)
             self.conexiones.add(conexion)
+            self.dot.edge(nodo_origen, nodo_destino)
 
     def generar_diagrama_completo(self, entradas, salidas, expresiones):
-        self.dot = Digraph(format="png")
-        self.conexiones = set()
-        self.ids_entradas = {}
         for entrada in entradas:
             id_nodo = self._generar_id_unico()
-            self.dot.node(id_nodo, label=entrada, shape="circle")
+            self.dot.node(id_nodo, label=entrada, shape="ellipse")
             self.ids_entradas[entrada] = id_nodo
 
         for salida, expresion in zip(salidas, expresiones):
             id_salida = self._generar_id_unico()
             self.dot.node(id_salida, label=salida, shape="doublecircle")
-            id_raiz = self._procesar_expresion(expresion, id_salida)
-            self._agregar_arista(id_raiz, id_salida)
+            self._procesar_expresion(expresion, id_salida)
 
-        self.dot.render("circuito_logico", format="png", cleanup=True)
-        messagebox.showinfo("Diagrama generado", "El diagrama lógico se ha generado como 'circuito_logico.png'.")
+        self.dot.render("diagrama_logico", format="png", cleanup=True)
 
 
 if __name__ == "__main__":
