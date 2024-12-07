@@ -9,9 +9,6 @@ class AplicacionLogica:
     def __init__(self, raiz):
         self.raiz = raiz
         self.raiz.title("Generador de Circuitos Lógicos")
-        self.raiz.geometry("500x500")
-        self.raiz.configure(bg="#f0f0f0")
-
         self.entradas = []
         self.salidas = []
         self.tabla = []
@@ -20,38 +17,49 @@ class AplicacionLogica:
         self.configurar_interfaz()
 
     def configurar_interfaz(self):
-        # Frame principal para organización
-        frame_principal = ttk.Frame(self.raiz, padding="10")
-        frame_principal.grid(row=0, column=0, sticky="nsew")
+        # Marco principal
+        self.marco_principal = ttk.Frame(self.raiz, padding=10)
+        self.marco_principal.grid(row=0, column=0, sticky="nsew")
+
+        # Configuración de columnas para el marco principal
+        self.marco_principal.columnconfigure(0, weight=1)
+        self.marco_principal.columnconfigure(1, weight=1)
 
         # Entradas
-        frame_entradas = ttk.LabelFrame(frame_principal, text="Entradas", padding="10")
-        frame_entradas.grid(row=0, column=0, pady=10, sticky="ew")
+        etiqueta_entrada = ttk.Label(self.marco_principal, text="Entradas:")
+        etiqueta_entrada.grid(row=0, column=0, sticky="w", pady=5)
         self.var_entrada = tk.StringVar()
-        ttk.Entry(frame_entradas, textvariable=self.var_entrada, width=30).grid(row=0, column=0, padx=5, pady=5)
-        ttk.Button(frame_entradas, text="Añadir Entrada", command=self.agregar_entrada).grid(row=0, column=1, padx=5, pady=5)
+        campo_entrada = ttk.Entry(self.marco_principal, textvariable=self.var_entrada, width=30)
+        campo_entrada.grid(row=0, column=1, sticky="w", pady=5)
+        boton_entrada = ttk.Button(self.marco_principal, text="Añadir", command=self.agregar_entrada)
+        boton_entrada.grid(row=0, column=2, sticky="w", padx=5)
 
         # Salidas
-        frame_salidas = ttk.LabelFrame(frame_principal, text="Salidas", padding="10")
-        frame_salidas.grid(row=1, column=0, pady=10, sticky="ew")
+        etiqueta_salida = ttk.Label(self.marco_principal, text="Salidas:")
+        etiqueta_salida.grid(row=1, column=0, sticky="w", pady=5)
         self.var_salida = tk.StringVar()
-        ttk.Entry(frame_salidas, textvariable=self.var_salida, width=30).grid(row=0, column=0, padx=5, pady=5)
-        ttk.Button(frame_salidas, text="Añadir Salida", command=self.agregar_salida).grid(row=0, column=1, padx=5, pady=5)
+        campo_salida = ttk.Entry(self.marco_principal, textvariable=self.var_salida, width=30)
+        campo_salida.grid(row=1, column=1, sticky="w", pady=5)
+        boton_salida = ttk.Button(self.marco_principal, text="Añadir", command=self.agregar_salida)
+        boton_salida.grid(row=1, column=2, sticky="w", padx=5)
 
         # Tabla de verdad
-        self.marco_tabla = ttk.Frame(frame_principal)
-        self.marco_tabla.grid(row=2, column=0, pady=10, sticky="ew")
+        self.marco_tabla = ttk.LabelFrame(self.raiz, text="Tabla de Verdad", padding=10)
+        self.marco_tabla.grid(row=1, column=0, sticky="nsew", pady=10)
 
-        # Botones para generar y resetear
-        frame_botones = ttk.Frame(frame_principal, padding="10")
-        frame_botones.grid(row=3, column=0, pady=10, sticky="ew")
-        ttk.Button(frame_botones, text="Generar Expresión Booleana", command=self.generar_exp_booleana).grid(row=0, column=0, padx=5, pady=5)
-        ttk.Button(frame_botones, text="Generar Diagrama", command=self.generar_diagrama).grid(row=0, column=1, padx=5, pady=5)
-        ttk.Button(frame_botones, text="Resetear", command=self.resetear).grid(row=0, column=2, padx=5, pady=5)
+        # Generar expresión booleana
+        self.etiqueta_expr = ttk.Label(self.marco_principal, text="Expresión simplificada:", font=("Arial", 10))
+        self.etiqueta_expr.grid(row=2, column=0, columnspan=3, sticky="w", pady=10)
 
-        # Etiqueta para mostrar la expresión simplificada
-        self.etiqueta_expr = ttk.Label(frame_principal, text="Expresión simplificada:")
-        self.etiqueta_expr.grid(row=4, column=0, pady=10, sticky="w")
+        boton_generar_tabla = ttk.Button(self.marco_principal, text="Expresión Booleana", command=self.generar_exp_booleana)
+        boton_generar_tabla.grid(row=3, column=0, columnspan=1, pady=10, sticky="w")
+
+        boton_generar_diagrama = ttk.Button(self.marco_principal, text="Generar Diagrama", command=self.generar_diagrama)
+        boton_generar_diagrama.grid(row=3, column=1, columnspan=1, pady=10, sticky="e")
+
+        # Botón de reset
+        boton_reset = ttk.Button(self.raiz, text="Resetear", command=self.resetear)
+        boton_reset.grid(row=2, column=0, pady=10, sticky="ew")
 
     def agregar_entrada(self):
         nombre_entrada = self.var_entrada.get()
@@ -77,7 +85,7 @@ class AplicacionLogica:
 
         columnas = self.entradas + self.salidas
         for col, nombre in enumerate(columnas):
-            ttk.Label(self.marco_tabla, text=nombre).grid(row=0, column=col, padx=5)
+            ttk.Label(self.marco_tabla, text=nombre).grid(row=0, column=col, padx=5, pady=5)
 
         self.tabla = [[tk.StringVar() for _ in columnas] for _ in range(2 ** len(self.entradas))]
         for idx_fila, fila_vars in enumerate(self.tabla):
@@ -85,13 +93,13 @@ class AplicacionLogica:
             for idx_col, var in enumerate(fila_vars):
                 if idx_col < len(self.entradas):
                     var.set(valores_binarios[idx_col])
-                ttk.Entry(self.marco_tabla, textvariable=var, width=5).grid(row=idx_fila + 1, column=idx_col, padx=2)
+                ttk.Entry(self.marco_tabla, textvariable=var, width=5).grid(row=idx_fila + 1, column=idx_col, padx=5, pady=5)
 
     def generar_exp_booleana(self):
         if not self.entradas or not self.salidas:
             messagebox.showerror("Error", "Debe agregar al menos una entrada y una salida.")
             return
-
+        
         try:
             datos = []
             for fila_vars in self.tabla:
@@ -180,9 +188,42 @@ class GeneradorDiagramaLogico:
             return id_nodo
 
         else:
-            if expr not in self.ids_entradas:
+            simbolo = str(expr)
+            if simbolo not in self.ids_entradas:
                 id_nodo = self._generar_id_unico()
-                self.dot.node(id_nodo, label=str(expr), shape="ellipse")
-                self.ids_entradas[expr] = id_nodo
+                self.dot.node(id_nodo, label=simbolo, shape="circle")
+                self.ids_entradas[simbolo] = id_nodo
+            id_nodo = self.ids_entradas[simbolo]
             if nodo_padre:
-                self._agregar
+                self._agregar_arista(id_nodo, nodo_padre)
+            return id_nodo
+
+    def _agregar_arista(self, nodo_origen, nodo_destino):
+        conexion = (nodo_origen, nodo_destino)
+        if conexion not in self.conexiones:
+            self.dot.edge(nodo_origen, nodo_destino)
+            self.conexiones.add(conexion)
+
+    def generar_diagrama_completo(self, entradas, salidas, expresiones):
+        self.dot = Digraph(format="png")
+        self.conexiones = set()
+        self.ids_entradas = {}
+        for entrada in entradas:
+            id_nodo = self._generar_id_unico()
+            self.dot.node(id_nodo, label=entrada, shape="circle")
+            self.ids_entradas[entrada] = id_nodo
+
+        for salida, expresion in zip(salidas, expresiones):
+            id_salida = self._generar_id_unico()
+            self.dot.node(id_salida, label=salida, shape="doublecircle")
+            id_raiz = self._procesar_expresion(expresion, id_salida)
+            self._agregar_arista(id_raiz, id_salida)
+
+        self.dot.render("circuito_logico", format="png", cleanup=True)
+        messagebox.showinfo("Diagrama generado", "El diagrama lógico se ha generado como 'circuito_logico.png'.")
+
+
+if __name__ == "__main__":
+    raiz = tk.Tk()
+    app = AplicacionLogica(raiz)
+    raiz.mainloop()
