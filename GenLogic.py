@@ -4,6 +4,7 @@ from sympy import symbols, simplify_logic
 from sympy.logic.boolalg import And, Or, Not
 from graphviz import Digraph
 
+
 class AplicacionLogica:
     def __init__(self, raiz):
         self.raiz = raiz
@@ -147,6 +148,62 @@ class AplicacionLogica:
         self.etiqueta_expr.config(text="Expresión simplificada:")
         for widget in self.marco_tabla.winfo_children():
             widget.destroy()
+
+
+class GeneradorDiagramaLogico:
+    def __init__(self):
+        self.dot = Digraph(format="png")
+        self.dot.attr(rankdir="LR", splines="line", ranksep="1.0", nodesep="0.7")
+        self.contador = 0
+        self.conexiones = set()
+        self.ids_entradas = {}
+        self.nodos_creados = {}
+
+    def _generar_id_unico(self):
+        self.contador += 1
+        return f"node{self.contador}"
+
+    def _procesar_expresion(self, expr, nodo_padre=None):
+        if isinstance(expr, And) or isinstance(expr, Or):
+            nodo_izq = self._procesar_expresion(expr.args[0], nodo_padre)
+            nodo_der = self._procesar_expresion(expr.args[1], nodo_padre)
+            if isinstance(expr, And):
+                operador = "AND"
+            else:
+                operador = "OR"
+            nodo = self._generar_id_unico()
+            self.dot.node(nodo, operador)
+            self.dot.edge(nodo_izq, nodo)
+            self.dot.edge(nodo_der, nodo)
+            return nodo
+        elif isinstance(expr, Not):
+            nodo_izq = self._procesar_expresion(expr.args[0], nodo_padre)
+            nodo = self._generar_id_unico()
+            self.dot.node(nodo, "NOT")
+            self.dot.edge(nodo_izq, nodo)
+            return nodo
+        else:
+            nombre = expr.name
+            if nombre not in self.nodos_creados:
+                nodo = self._generar_id_unico()
+                self.dot.node(nodo, nombre)
+                self.nodos_creados[nombre] = nodo
+            else:
+                nodo = self.nodos_creados[nombre]
+            return nodo
+
+    def generar_diagrama_completo(self, entradas, salidas, expresiones):
+        for entrada in entradas:
+            nodo_entrada = self._generar_id_unico()
+            self.dot.node(nodo_entrada, entrada)
+            self.ids_entradas[entrada] = nodo_entrada
+
+        for salida, expresion in zip(salidas, expresiones):
+            nodo_salida = self._generar_id_unico()
+            self.dot.node(nodo_salida, salida)
+            self.dot.edge(self._procesar_expresion(expresion), nodo_salida)
+
+        self.dot.render("diagrama_circuito")
 
 
 if __name__ == "__main__":
